@@ -1,0 +1,30 @@
+# Python environment
+.venv/
+venv/
+
+# PyCharm settings
+.idea/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Dataset and temporary audio
+data/
+datasets/
+tests/temp_audio/
+*.flac
+*.wav
+*.zip
+
+# Model files
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Secrets
+.env
+
+# Logs
+*.log
