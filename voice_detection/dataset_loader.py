@@ -3,9 +3,11 @@ from pathlib import Path
 import pandas as pd
 
 
-# Location of the extracted ASVspoof 2019 dataset
+import os
+
+# Location of the extracted ASVspoof 2019 dataset (configurable via environment variable)
 DATASET_ROOT = Path(
-    r"C:\Users\Ishan\Datasets\ASVspoof2019\LA"
+    os.getenv("ASVSPOOF_DATASET_ROOT", r"C:\Users\Ishan\Datasets\ASVspoof2019\LA")
 )
 
 # Folder names for each dataset split

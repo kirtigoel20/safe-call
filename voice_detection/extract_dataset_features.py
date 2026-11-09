@@ -4,11 +4,17 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-from dataset_loader import load_protocol
-from feature_extraction import extract_features
+try:
+    from voice_detection.dataset_loader import load_protocol
+    from voice_detection.feature_extraction import extract_features
+except ImportError:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from dataset_loader import load_protocol
+    from feature_extraction import extract_features
 
-
-OUTPUT_DIR = Path("data/features")
+PROJECT_DIR = Path(__file__).resolve().parents[1]
+OUTPUT_DIR = PROJECT_DIR / "data" / "features"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 

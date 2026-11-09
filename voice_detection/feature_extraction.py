@@ -1,26 +1,42 @@
 
+from pathlib import Path
 import numpy as np
 import librosa
 
-from dataset_loader import load_protocol
-
+try:
+    from preprocessing.audio_preprocessing import preprocess_audio
+except ImportError:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from preprocessing.audio_preprocessing import preprocess_audio
 
 SAMPLE_RATE = 16000
 N_MFCC = 20
 
 
-def extract_features(audio_path):
-    # Load audio as mono at 16 kHz
-    audio, sr = librosa.load(
-        audio_path,
-        sr=SAMPLE_RATE,
-        mono=True
-    )
+def extract_features(audio_input, sr=SAMPLE_RATE):
+    """
+    Extract 40-dimensional MFCC summary features (20 means + 20 standard deviations).
+
+    Parameters:
+        audio_input (str | Path | np.ndarray): File path to audio or preprocessed 1D audio array.
+        sr (int): Sampling rate (default: 16000 Hz).
+
+    Returns:
+        np.ndarray: 40-dimensional float32 feature vector.
+    """
+    if isinstance(audio_input, (str, Path)):
+        audio, sample_rate = preprocess_audio(audio_input, target_sr=sr)
+    elif isinstance(audio_input, np.ndarray):
+        audio = audio_input
+        sample_rate = sr
+    else:
+        raise TypeError(f"Unsupported audio input type: {type(audio_input)}")
 
     # Extract MFCCs: 20 coefficients across time
     mfcc = librosa.feature.mfcc(
         y=audio,
-        sr=sr,
+        sr=sample_rate,
         n_mfcc=N_MFCC,
         n_fft=512,
         hop_length=160
@@ -40,8 +56,10 @@ def extract_features(audio_path):
 
 
 if __name__ == "__main__":
-    # Load the training metadata
-    data = load_protocol("train")
+    try:
+        from voice_detection.dataset_loader import load_protocol
+    except ImportError:
+        from dataset_loader import load_protocol
 
     # Test on one recording first
     sample = data.iloc[0]
