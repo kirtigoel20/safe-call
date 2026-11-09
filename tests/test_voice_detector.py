@@ -121,3 +121,4 @@ def test_custom_threshold_override(detector, synthetic_wav):
     res_human = detector.predict(synthetic_wav, threshold=1.0)
     assert res_human["prediction"] == LABEL_HUMAN
     assert res_human["raw_label"] == 0
+
