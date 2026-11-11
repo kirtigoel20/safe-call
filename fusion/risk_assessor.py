@@ -3,6 +3,9 @@ Multi-Modal Risk Assessment & Fusion Engine for SAFE CALL.
 
 Fuses acoustic voice deepfake signals and semantic scam intent analysis
 into a unified risk score (0.0 to 1.0) and categorical risk levels.
+
+Prevents false alarms on compressed / microphone audio by cross-validating
+acoustic findings against conversational intent.
 """
 
 import sys
@@ -18,8 +21,8 @@ from voice_detection.voice_detector import get_voice_detector, VoiceDeepfakeDete
 from speech_to_text.transcriber import get_transcriber, SpeechTranscriber
 from scam_detection.scam_detector import get_scam_detector, ScamDetector
 
-DEFAULT_WEIGHT_VOICE = 0.50
-DEFAULT_WEIGHT_SCAM = 0.50
+DEFAULT_WEIGHT_VOICE = 0.40
+DEFAULT_WEIGHT_SCAM = 0.60
 
 
 class MultiModalRiskAssessor:
@@ -67,23 +70,34 @@ class MultiModalRiskAssessor:
         # Base weighted fusion
         base_score = (self.w_voice * p_voice) + (self.w_scam * p_scam)
 
-        # Compound synergy boost:
-        # If both synthetic audio AND scam language are detected together,
-        # the risk is exponentially higher (AI-driven targeted social engineering).
+        # Smart Multi-Modal Contextual Multipliers:
+        # 1. AI Clone + Scam Language = CRITICAL EMERGENCY
         if is_voice_spoof and is_scam_text:
             synergy_boost = 0.25
             primary_threat = "AI_CLONE_FRAUD"
-        elif is_voice_spoof and not is_scam_text:
-            synergy_boost = 0.05
-            primary_threat = "SUSPICIOUS_SYNTHETIC_VOICE"
+
+        # 2. Human Voice + Scam Language = CONFIRMED HUMAN FRAUD
         elif not is_voice_spoof and is_scam_text:
-            synergy_boost = 0.10
+            synergy_boost = 0.15
             primary_threat = "HUMAN_SCAM_CALL"
+
+        # 3. Synthetic voice detected BUT conversation is completely normal:
+        #    Mitigates false alarms from lossy phone codecs (.m4a), room echo, or robocalls.
+        #    Caps composite threat at MODERATE rather than creating a false emergency.
+        elif is_voice_spoof and not is_scam_text:
+            synergy_boost = -0.15
+            primary_threat = "SUSPICIOUS_SYNTHETIC_VOICE"
+
+        # 4. Human voice + Normal talk = SAFE BENIGN CALL
         else:
             synergy_boost = 0.0
             primary_threat = "BENIGN_CALL"
 
         composite_risk = float(np.clip(base_score + synergy_boost, 0.0, 1.0))
+
+        # If conversation is completely free of scam language, cap risk to MODERATE
+        if not is_scam_text:
+            composite_risk = min(composite_risk, 0.35)
 
         # Categorical Risk Tiers
         if composite_risk >= 0.75:
@@ -92,7 +106,7 @@ class MultiModalRiskAssessor:
         elif composite_risk >= 0.50:
             risk_level = "HIGH"
             requires_action = True
-        elif composite_risk >= 0.25:
+        elif composite_risk >= 0.20:
             risk_level = "MODERATE"
             requires_action = False
         else:
@@ -159,4 +173,3 @@ def assess_call_risk(
     """Convenience function to run end-to-end multi-modal call risk assessment."""
     assessor = get_risk_assessor()
     return assessor.analyze_call(audio_path)
-

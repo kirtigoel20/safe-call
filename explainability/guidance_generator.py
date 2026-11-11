@@ -25,7 +25,7 @@ class GuidanceGenerator:
         Returns:
             Dict containing:
                 - title: High-level alert banner title
-                - alert_type: 'SAFE' | 'WARNING' | 'DANGER' | 'CRITICAL'
+                - alert_type: 'SAFE' | 'INFO' | 'WARNING' | 'DANGER' | 'CRITICAL'
                 - summary_reason: Concise 1-sentence explanation of why the call was flagged
                 - acoustic_explanation: Explanation of voice clone assessment
                 - semantic_explanation: Explanation of conversation content assessment
@@ -49,8 +49,8 @@ class GuidanceGenerator:
         # 1. Acoustic Explanation
         if is_spoof:
             acoustic_exp = (
-                f"Acoustic analysis detected synthetic audio artifacts and vocoder anomalies "
-                f"with {spoof_prob * 100:.1f}% confidence. The voice exhibits signatures of an AI-generated or cloned voice."
+                f"Acoustic analysis detected synthetic audio artifacts or phone microphone compression "
+                f"with {spoof_prob * 100:.1f}% confidence."
             )
         else:
             acoustic_exp = (
@@ -99,14 +99,15 @@ class GuidanceGenerator:
             ])
 
         elif primary_threat == "SUSPICIOUS_SYNTHETIC_VOICE":
-            title = "CAUTION: Synthetic / Automated Voice Detected"
-            alert_type = "WARNING"
+            title = "NOTICE: Audio Codec / Compression Artifacts Detected"
+            alert_type = "INFO"
             summary_reason = (
-                "The audio exhibits synthetic or robocall acoustic characteristics, though no overt scam demands have occurred yet."
+                "The audio exhibits acoustic frequency roll-off (typical of phone mic compression or robocalls), "
+                "but the conversation is completely free of scam indicators."
             )
             action_items.extend([
-                "Remain vigilant and avoid confirming personal or sensitive identity details.",
-                "Be wary if the caller transitions into urgent requests or financial topics.",
+                "No suspicious scam activity detected. Conversation appears harmless.",
+                "As standard safety hygiene, never disclose one-time passwords (OTPs) or banking credentials over calls.",
             ])
 
         else:  # BENIGN_CALL
@@ -147,4 +148,3 @@ def generate_call_guidance(call_analysis: Dict[str, Any]) -> Dict[str, Any]:
     """Convenience function to generate user-facing explainable guidance."""
     generator = get_guidance_generator()
     return generator.generate_guidance(call_analysis)
-
