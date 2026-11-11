@@ -118,6 +118,8 @@ Safecall/
 │   └── safecall_logistic_regression.joblib  # Trained acoustic model weights
 ├── pipeline.py                       # Unified pipeline orchestrator
 ├── demo.py                           # Interactive CLI presentation demo
+├── web_app.py                        # Interactive Web Browser Dashboard
+├── VIVA_GUIDE.md                     # Academic Defense & Viva Preparation Guide
 └── README.md
 ```
 
@@ -125,17 +127,25 @@ Safecall/
 
 ## 🚀 Quickstart & Usage
 
-### 1. Run Complete Automated Test Suite (27 Tests)
+### 1. Launch Interactive Web Browser Dashboard (Recommended for Demos)
+```powershell
+python web_app.py
+```
+Open **`http://localhost:8000`** in Google Chrome or Microsoft Edge to drag-and-drop audio or record live speech directly from your microphone.
+
+### 2. Run Interactive Demo CLI
+```powershell
+python demo.py
+# Or analyze an audio file directly:
+python demo.py "path/to/recording.m4a"
+```
+
+### 3. Run Complete Automated Test Suite (27 Tests)
 ```powershell
 .venv\Scripts\python.exe -m pytest tests/test_voice_detector.py tests/test_speech_to_text.py tests/test_scam_detector.py tests/test_pipeline.py -v
 ```
 
-### 2. Run Interactive Demo CLI
-```powershell
-.venv\Scripts\python.exe demo.py
-```
-
-### 3. Run Pipeline in Python Code
+### 4. Run Pipeline in Python Code
 ```python
 from pipeline import run_safecall
 
